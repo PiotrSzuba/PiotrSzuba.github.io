@@ -1,6 +1,8 @@
 .container{
     width: 80%;
     margin: auto;
+    margin-top: 5px;
+    padding-top: 5px;
 }
 
 body{
@@ -16,6 +18,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 10px;
 }
 
 .navbar-content{
@@ -35,9 +38,18 @@ body{
     margin-left: auto;
 }
 
+.force-center{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center
+}
+
 .force-left{
     display: flex;
     flex-direction: row;
+    margin-right: auto;
 }
 
 a:link {
@@ -68,55 +80,161 @@ a:active {
     text-align: center!important;
 }
 
-table {
-    border-collapse: collapse;
+.title-input {
+    margin: 0;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    width: 75%;
+    padding: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: 3px solid #ccc;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
 }
 
-th, td {
-    border: 1px solid black;
-  }
-
-.table{
-    width: 100%;
-    margin-bottom: 1rem;
-    color: #212529;
+.title-input:focus{
+    border: 3px solid #555;
 }
 
-.table-bordered{   
-    border: 1px solid #dee2e6;
+.title-input::-webkit-input-placeholder {
+    color: gray
+ }
+
+.title-input-placeholder::-webkit-input-placeholder {
+    color: #de2137;
+    color: rgba(222, 33, 55, 0.5);
+ }
+
+.search-input{
+    margin: 0;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+    border: 3px solid #de2137;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    background-color: #000;
+    color: white;
+    height: 2.5em;
+    margin-bottom: 0px;
 }
 
-.table-responsive{
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch
+.search-input:focus{
+    border: 1px solid pink;
 }
 
-.text-uppercase{
-    text-transform: uppercase!important; 
+.list-container{
+    padding: 10px;
+    margin-top: 5px;
 }
 
-.border-radius-5 {
-    border: 5px;
+.button{
+    font-size: 16px;
+    color: #de2137;
+    border: solid;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: #de2137;
+    background-color: white;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.pwr-logo{
-    height: 50px;
+.button-small{
+    font-size: 1em;
+    padding: 2px;
+    border: solid;
+    border-width: 0px;
+    color: #de2137;
 }
 
-.bg-L{
-    background-color: #3c8dbc
+.button-small:link{
+    color: #de2137;
 }
 
-.bg-W{
-    background-color: #00a65a
+.button:checked{
+    color: #000;
 }
 
-.bg-C{
-    background-color: #f39c12
+.button-checked{
+    background-color: #de2137;
+    color: white;
+    font-size: 16px;
+    border: solid;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: #de2137;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.bg-P{
-    background-color: #00c0ef
+.button:hover{
+    background-color: #de2137;
+    color: white;
+    cursor: pointer;
+}
+
+.button-small:active{
+    border-width: 1px;
+    border-color: pink;
+}
+
+.button:active{
+    border-width: 3px;
+    border-color: pink;
+}
+
+.search-button{
+    background-color: #000;
+    color: white;
+    height: 2.5em;
+}
+
+.list-element-container{
+    height: 2em;
+    display: flex;
+    align-items: center;
+    margin: 0; 
+}
+
+.list-element{
+    background-color: white;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.list-element-line{
+    text-decoration: line-through;
+    color: #d4d4d4;
+}
+
+.modal .button{
+    font-size: 12px;
+    color: #de2137;
+    border: solid;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: #de2137;
+    background-color: white;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;   
+}
+
+.modal .button:hover{
+    background-color: #de2137;
+    color: white;
+    cursor: pointer;
+}
+
+.modal .button:active{
+    border-width: 3px;
+    border-color: pink;
 }
