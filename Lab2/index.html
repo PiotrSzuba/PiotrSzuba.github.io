@@ -1,0 +1,36 @@
+<html> 
+  <head>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+    <title>252807 Lab2</title> 
+  </head>
+
+  
+  <body>
+    <div class="navbar-container">
+        <div class="navbar-content">
+            <div class="force-left">
+                <p>Lab2</p>
+            </div>
+            <div class="force-center">
+              <input type="text" id="searchInput" class="search-input" placeholder="Search text">
+              <button onclick="toogleCaseSensitive(this)" id="caseSearchInputButton" class="button search-button">Case sensitive</button>
+            </div>
+            <div class="force-right">
+              <p>Szuba</p>
+            </div>
+        </div>
+    </div>
+    <div id = "container" class="container"> 
+      <input type="text" id="titleInput" class="title-input" placeholder="Title">
+      <button onclick="newElement()" id="titleInputButton" class="button">Add</button>
+
+      <div id="list" class="list-container">
+
+      </div>
+    </div> 
+  </body>
+</html>
