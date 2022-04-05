@@ -201,8 +201,8 @@ const Home = () => {
             </div>
             <div>
 
-              { filteredStudents.map((student) => 
-                <PersonCardView key={student.id} name = {student.name} description = {student.description} groups = {student.groups} tags = {student.tags}/>)}
+              { filteredStudents.map((student, index) => 
+                <PersonCardView key = {student.id} id = {index} name = {student.name} description = {student.description} groups = {student.groups} tags = {student.tags}/>)}
             </div>
         </div>
     );

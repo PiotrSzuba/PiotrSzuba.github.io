@@ -148,3 +148,49 @@ body .container {
     border-color: pink;
     margin: -1px;
  }
+
+ .navlink-stripper:hover{
+     color: black;
+ }
+
+ .navlink-stripper:link{
+    color: black;
+}
+
+.navlink-stripper:active{
+    color: black;
+}
+
+.navlink-stripper:visited{
+    color: black;
+}
+
+.messagePage-elements{
+    margin:auto;
+    width: 80%;
+}
+
+.messagePage-textArea{
+    width: 100%;
+    height: 10em;
+    border: 2px solid pink;
+    margin-top: 1em;
+
+}.messagePage-textArea:focus{
+    border: 2px solid #de2137;
+}
+
+textarea, textarea:focus {
+    resize: none;
+    border: 2px solid #de2137;
+}
+    
+input:focus, textarea:focus, select:focus {
+    outline-offset: 0px !important;
+    outline: none !important;
+}
+
+.message{
+    margin-top: 1em;
+    text-align: center;
+}

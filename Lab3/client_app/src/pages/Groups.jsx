@@ -234,8 +234,8 @@ const Groups = () => {
                 }
             </div>
             <div>
-            { filteredGroupsList.map((group) => 
-                <GroupCardView key={group.id} groupName = {group.groupName} description = {group.description} members = {group.members} course = {group.course}/>)}
+            { filteredGroupsList.map((group, index) => 
+                <GroupCardView key={group.id} id = {index} groupName = {group.groupName} description = {group.description} members = {group.members} course = {group.course}/>)}
             </div>
         </div>
     );

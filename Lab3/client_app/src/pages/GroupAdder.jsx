@@ -59,7 +59,9 @@ export default class GroupAdder extends React.Component {
                             <input placeholder="Description" type="text" class="title-input" value={this.state.desc} onChange={this.handleDescChange} />
                             <input placeholder="Members seperate with ; example: member1;member2" type="text" class="title-input" value={this.state.members} onChange={this.handleMembersChange} />
                             <input placeholder="Course" type="text" class="title-input" value={this.state.course} onChange={this.handleCoursesChange} />
-                            <input class='submit-button filter-button' type="submit" value="Submit" />
+                            <div class="submit-container">
+                                <input class='submit-button filter-button' type="submit" value="Submit" />
+                            </div>
                         </form>
                     </div>
                 </div>
