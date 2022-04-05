@@ -47,7 +47,7 @@ body .container {
     border-width: 2px;
     border-color: #de2137;
     background-color: white;
-    margin: 10px;
+    margin: 0;
     padding: 10px;
     box-sizing: border-box;
 }
@@ -57,7 +57,7 @@ body .container {
     color: white;
     font-size: 16px;
     border: solid;
-    border-radius: 10px;
+    border-radius: 5px;
     border-width: 2px;
     border-color: #de2137;
     margin: 0;
@@ -74,4 +74,77 @@ body .container {
 .button:active{
     border-width: 3px;
     border-color: pink;
+    margin: -1px;
 }
+
+.filter {
+    width: 80%;
+    margin: auto;
+}
+
+.filter-button{
+    width: 100%;
+    margin-top: 0.5em;
+}
+
+.filter-inputs{
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.title-input {
+    margin: 0;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    box-sizing: border-box;
+    border: 2px solid pink;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.title-input:focus{
+    border: 2px solid #de2137;
+    outline: none;
+}
+
+.title-input::-webkit-input-placeholder {
+    color: gray
+ }
+
+.title-input-placeholder::-webkit-input-placeholder {
+    color: #de2137;
+    color: rgba(222, 33, 55, 0.5);
+ }
+
+ .adder-container{
+     width: 80%;
+     margin: auto;
+ }
+
+ .submit-container{
+     margin-top: 3em;
+     margin-bottom: 1em;
+ }
+
+ .submit-button{
+    font-size: 1em;
+    color: white;
+    border: solid;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: #de2137;
+    background-color: #de2137;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;  
+ }
+
+ .submit-button:active{
+    border-width: 3px;
+    border-color: pink;
+    margin: -1px;
+ }

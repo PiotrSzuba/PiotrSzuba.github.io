@@ -11,7 +11,7 @@ const Navbar = () => {
                 <div className="force-left">
                     <NavLink className="navbar-link " to="/">Home</NavLink>
                     <NavLink className="navbar-link " to="/AddAdvert">Add advert</NavLink>
-                    <NavLink className="navbar-link " to="/FindGroup">Find group</NavLink>
+                    <NavLink className="navbar-link " to="/Groups">Groups</NavLink>
                     <NavLink className="navbar-link " to="/AddGroup">Add group</NavLink>
                 </div>
                 <div className="force-right">

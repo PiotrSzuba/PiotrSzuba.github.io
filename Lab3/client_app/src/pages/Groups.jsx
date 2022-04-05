@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import PersonCardView from '../components/personCardView/personCardView';
+import '../styles/index.scss'
+import GroupCardView from '../components/groupCardView/groupCardView';
 
-const Home = () => {
+const Groups = () => {
 
     const names = 
     [
@@ -26,17 +27,8 @@ const Home = () => {
         "Dagr","Hrungnir", "Austri"
     ];
 
-    const tagsList = 
-    [
-        "C", "C++", "C#",
-        "Java", "Python", "F#",
-        "PHP", "R", "Dart",
-        "Go", "Rust", "JavaScript",
-        "TypeScript", "Ruby", "Vue",
-        "React","Angular","Beer"
-
-    ];
-
+    const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+    
     const groups = 
     [
         "Advanced Databases","Advanced Topics in Artificial Intelligence","Information System Modelling and Analysis",
@@ -48,7 +40,16 @@ const Home = () => {
         "Research Methodology","Business Modelling and Analysis","Monographic Subject"
     ];
 
-    const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+    const tagsList = 
+    [
+        "C", "C++", "C#",
+        "Java", "Python", "F#",
+        "PHP", "R", "Dart",
+        "Go", "Rust", "JavaScript",
+        "TypeScript", "Ruby", "Vue",
+        "React","Angular","Beer"
+
+    ];
 
     const getRandomInt = (max) => {
         return Math.floor(Math.random() * max);
@@ -64,6 +65,10 @@ const Home = () => {
     const generateDescription = () => {
         let max = getRandomInt(description.length);
         return description.substring(max);
+    }
+
+    const generateCourse = () =>{
+        return groups[getRandomInt(groups.length - 1)];
     }
 
     const deleteDuplicates = (array) => {
@@ -89,31 +94,62 @@ const Home = () => {
         return resultArray;
     }
 
-    const studentList = 
-    [
-        {name: generateName(),email: "email",description: generateDescription(),groups: generateRandomArray(groups),tags: generateRandomArray(tagsList)},
-        {name: generateName(),email: "email",description: generateDescription(),groups: generateRandomArray(groups),tags: generateRandomArray(tagsList)},
-    ];
-
-    const getStudentsFromLocal = () => {
-        let localList = JSON.parse(localStorage.getItem("studentsList"));
-
-        if(localList == null || localList.length == 0){
-            localStorage.setItem("studentsList", JSON.stringify(studentList));
-
-            return studentList;
+    const generateMembers = () => {
+        let outputArray = [];
+        let amountOfPeople = getRandomInt(5);
+        if(amountOfPeople == 0){
+            amountOfPeople++;
         }
-        //localStorage.setItem("studentsList", JSON.stringify([]));
-        return JSON.parse(localStorage.getItem("studentsList")) || [];
+        for(let i = 0; i < amountOfPeople; i++){
+            let name = generateName();
+            let tags = generateRandomArray(tagsList);
+            tags = tags.join(", ");
+            outputArray.push(name + ": " + tags);
+        }
+
+        return outputArray;
     }
 
-    const [students, setStudents] = useState(getStudentsFromLocal());
-    const [filteredStudents, setFilteredStudents] = useState(getStudentsFromLocal());
-    const [filter, setFilter] = useState(false);
-    const [filterName, setFilterName] = useState("Show filters");
+    const groupList = 
+    [
+        {groupName: generateName(),description: generateDescription(),members: generateMembers(),course: generateCourse()},
+        {groupName: generateName(),description: generateDescription(),members: generateMembers(),course: generateCourse()},
+    ];
+
+    const getGroupsFromLocal = () => {
+        let localList = JSON.parse(localStorage.getItem("groupsList"));
+        if(localList == null || localList.length == 0){
+            localStorage.setItem("groupsList", JSON.stringify(groupList));
+
+            return groupList;
+        }
+        //localStorage.setItem("groupsList", JSON.stringify([]));
+        return JSON.parse(localStorage.getItem("groupsList")) || [];
+    }
+    const [groupsList, setGroupList] = useState(getGroupsFromLocal());
+    const [filteredGroupsList, setFilteredGroupList] = useState(getGroupsFromLocal());
+    const [groupNameFilter, setGroupNameFilter] = useState("");
     const [courseFilter,setCourseFilter] = useState("");
     const [descFilter, setDescFilter] = useState("");
     const [tagsFilter, setTagsFilter] = useState("");
+    const [filter, setFilter] = useState(false);
+    const [filterName, setFilterName] = useState("Show filters");
+
+    const handleGroupNameFilter = (event) =>{
+        setGroupNameFilter(event.target.value);
+    }
+
+    const handleDescFilter = (event) =>{
+        setDescFilter(event.target.value);
+    }
+
+    const handleCourseFilter = (event) =>{
+        setCourseFilter(event.target.value);
+    }
+
+    const handleTagsFilter = (event) =>{
+        setTagsFilter(event.target.value);
+    }
 
     const filterpanel = () => {
         if(filter){
@@ -125,65 +161,62 @@ const Home = () => {
         setFilterName("Hide filters");
     }
 
-    const handleCourseFilter = (event) =>{
-        setCourseFilter(event.target.value);
-    }
-
-    const handleDescFilter = (event) =>{
-        setDescFilter(event.target.value);
-    }
-
-    const handleTagsFilter = (event) =>{
-        setTagsFilter(event.target.value);
-    }
-
     const filterContent = () => {
         let outputArray = [];
-        setFilteredStudents(students);
+        setFilteredGroupList(groupsList);
 
-        if(descFilter.length){
-            for(let i = 0; i < filteredStudents.length; i++){
-                if(filteredStudents[i].description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
-                    outputArray.push(filteredStudents[i]);
+        if(groupNameFilter.length){
+            for(let i = 0; i < filteredGroupsList.length; i++){
+                if(filteredGroupsList[i].groupName.toLocaleLowerCase().includes(groupNameFilter.toLocaleLowerCase())){
+                    outputArray.push(filteredGroupsList[i]);
                 }
             }
-            setFilteredStudents(outputArray);
+            setFilteredGroupList(outputArray);
         }
+        
+        outputArray = [];
+        if(descFilter.length){
+            for(let i = 0; i < filteredGroupsList.length; i++){
+                if(filteredGroupsList[i].description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
+                    outputArray.push(filteredGroupsList[i]);
+                }
+            }
+            setFilteredGroupList(outputArray);
+        }
+
         outputArray = [];
         if(courseFilter.length){
-            for(let i = 0; i < filteredStudents.length; i++){
-                for(let j = 0; j < filteredStudents[i].groups.length; j++){
-                    if(filteredStudents[i].groups[j].toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
-                        outputArray.push(filteredStudents[i]);
-                        break;
-                    }
+            for(let i = 0; i < filteredGroupsList.length; i++){
+                if(filteredGroupsList[i].course.toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
+                    outputArray.push(filteredGroupsList[i]);
                 }
             }
-            setFilteredStudents(outputArray);
+            setFilteredGroupList(outputArray);
         }
 
         outputArray = [];
         if(tagsFilter.length){
-            for(let i = 0; i < filteredStudents.length; i++){
-                for(let j = 0; j < filteredStudents[i].tags.length; j++){
-                    if(filteredStudents[i].tags[j].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
-                        outputArray.push(filteredStudents[i]);
+            for(let i = 0; i < filteredGroupsList.length; i++){
+                for(let j = 0; j < filteredGroupsList[i].members.length; j++){
+                    if(filteredGroupsList[i].members[j].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
+                        outputArray.push(filteredGroupsList[i]);
                         break;
                     }
                 }
             }
-            setFilteredStudents(outputArray);
+            setFilteredGroupList(outputArray);
         }
     }
 
     const clearFilterContent = () => {
-        setFilteredStudents(students);
+        setFilteredGroupList(groupsList);
+        setGroupNameFilter("");
         setCourseFilter("");
         setDescFilter("");
         setTagsFilter("");
     }
 
-    document.title = "Lab3 - Home";
+    document.title = "Lab3 - Groups";
 
     return (
         <div className="container ">
@@ -192,6 +225,7 @@ const Home = () => {
                 {filter && 
                     <div className='filter-inputs'>
                         <input value={courseFilter} onChange={(event) => handleCourseFilter(event)} type="text" class="title-input" placeholder="Course name"></input>
+                        <input value={groupNameFilter} onChange={(event) => handleGroupNameFilter(event)} type="text" class="title-input" placeholder="Group name"></input>
                         <input value={descFilter} onChange={(event) => handleDescFilter(event)} type="text" class="title-input" placeholder="Description"></input>
                         <input value={tagsFilter} onChange={(event) => handleTagsFilter(event)} type="text" class="title-input" placeholder="Tags"></input>
                         <button className='button filter-button' onClick={() => filterContent()}>Filter</button>
@@ -200,12 +234,11 @@ const Home = () => {
                 }
             </div>
             <div>
-
-              { filteredStudents.map((student) => 
-                <PersonCardView key={student.id} name = {student.name} description = {student.description} groups = {student.groups} tags = {student.tags}/>)}
+            { filteredGroupsList.map((group) => 
+                <GroupCardView key={group.id} groupName = {group.groupName} description = {group.description} members = {group.members} course = {group.course}/>)}
             </div>
         </div>
     );
 }
 
-export default Home;
+export default Groups;
