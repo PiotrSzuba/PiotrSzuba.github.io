@@ -5,7 +5,7 @@ import './groupCardView.scss';
 const GroupCardView = (props) => {
 
     const studentsList = props.members.map((student) => 
-        <div key={student.id} >{student}</div>
+        <div key={student.id} >{student[0]}</div>
     );
 
     const href = "/MessageGroupPage/" + props.id;

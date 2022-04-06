@@ -104,7 +104,7 @@ const Groups = () => {
             let name = generateName();
             let tags = generateRandomArray(tagsList);
             tags = tags.join(", ");
-            outputArray.push(name + ": " + tags);
+            outputArray.push({nameTags: name + ": " + tags,email: "email@emaple.com"});
         }
 
         return outputArray;
@@ -198,7 +198,7 @@ const Groups = () => {
         if(tagsFilter.length){
             for(let i = 0; i < filteredGroupsList.length; i++){
                 for(let j = 0; j < filteredGroupsList[i].members.length; j++){
-                    if(filteredGroupsList[i].members[j].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
+                    if(filteredGroupsList[i].members[j][0].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
                         outputArray.push(filteredGroupsList[i]);
                         break;
                     }
