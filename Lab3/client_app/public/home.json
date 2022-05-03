@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "fullname": "Test student",
+        "email": "user2",
+        "description": "User2 of this site",
+        "tags": ["F#","R","Python","Haskell"],
+        "courses": ["Advanced Topics in Artificial Intelligence","Parallel and Distributed Computing","Modelling and Analysis of Web-based Systems"],
+        "image": ""
+    },
+    {
+        "id": 2,
+        "fullname": "User 5",
+        "email": "user5",
+        "description": "User5 of this site",
+        "tags": ["C","C++","Java"], 
+        "courses": ["Advanced Computer Graphics","User Interface Development","Business Modelling and Analysis","Digital Image Processing"],
+        "image": ""
+    }
+]

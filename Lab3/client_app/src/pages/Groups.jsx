@@ -1,139 +1,31 @@
-import React, { useState } from 'react';
-import '../styles/index.scss'
-import GroupCardView from '../components/groupCardView/groupCardView';
+import React, { useState, useEffect } from 'react';
+import GroupCardView from '../components/groupCardView';
+import axios from 'axios';
 
 const Groups = () => {
-
-    const names = 
-    [
-        "Zeus","Hera","Poseidon",
-        "Hades","Athena","Appolo",
-        "Artemis", "Aphrodite", "Hermes",
-        "Ares", "Hephaestus", "Cronus", 
-        "Prometheus", "Dionysus", "Demeter",
-        "Ceres", "Persephone", "Eros", 
-        "Odysseus", "Hercules", "Theseus",
-        "Perseus", "Oedipus", "Orestes"
-    ];
-
-    const surnames = 
-    [
-        "Thor", "Freyr", "Odin",
-        "Freyja", "Sif", "Hildr",
-        "Astrilde", "Signy", "Eir",
-        "Idunn", "Skuld", "Gerd",
-        "Frigg", "Nerthus", "Yggdrasil",
-        "Loki", "Orvar", "Sigurd", 
-        "Dagr","Hrungnir", "Austri"
-    ];
-
-    const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-    
-    const groups = 
-    [
-        "Advanced Databases","Advanced Topics in Artificial Intelligence","Information System Modelling and Analysis",
-        "System Modelling and Analysis", "Parallel and Distributed Computing", "Software System Development",
-        "Modelling and Analysis of Web-based Systems", "Mobile and Multimedia Systems", "Foundations of Knowledge Engineering",
-        "Physics of Contemporary Computer Science","Recent Advances in Computer Science","Ethics of New Technologies",
-        "Advanced Computer Network", "Advanced Computer Graphics","Digital Image Processing",
-        "Multimedia Information Systems", "User Interface Development","Data Warehouses",
-        "Research Methodology","Business Modelling and Analysis","Monographic Subject"
-    ];
-
-    const tagsList = 
-    [
-        "C", "C++", "C#",
-        "Java", "Python", "F#",
-        "PHP", "R", "Dart",
-        "Go", "Rust", "JavaScript",
-        "TypeScript", "Ruby", "Vue",
-        "React","Angular","Beer"
-
-    ];
-
-    const getRandomInt = (max) => {
-        return Math.floor(Math.random() * max);
-    }
-
-    const generateName = () => {
-        let name = names[getRandomInt(names.length - 1)];
-        let surname = surnames[getRandomInt(surnames.length - 1)];
-
-        return name + " " + surname; 
-    }
-
-    const generateDescription = () => {
-        let max = getRandomInt(description.length);
-        return description.substring(max);
-    }
-
-    const generateCourse = () =>{
-        return groups[getRandomInt(groups.length - 1)];
-    }
-
-    const deleteDuplicates = (array) => {
-        let seen = {};
-        return array.filter(function(item) {
-            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-        });     
-    }
-
-    const generateRandomArray = (array) => {
-        let resultArray = [];
-        let numberOfElements = Math.ceil(getRandomInt(array.length - 1)/2);
-        for(let i = 0; i < numberOfElements; i++){
-            resultArray.push(array[getRandomInt(array.length - 1)]);
-        }
-
-        resultArray = deleteDuplicates(resultArray);
-
-        if(!resultArray.length){
-            resultArray.push(array[getRandomInt(array.length - 1)]);
-        }
-
-        return resultArray;
-    }
-
-    const generateMembers = () => {
-        let outputArray = [];
-        let amountOfPeople = getRandomInt(5);
-        if(amountOfPeople == 0){
-            amountOfPeople++;
-        }
-        for(let i = 0; i < amountOfPeople; i++){
-            let name = generateName();
-            let tags = generateRandomArray(tagsList);
-            tags = tags.join(", ");
-            outputArray.push({nameTags: name + ": " + tags,email: "email@emaple.com"});
-        }
-
-        return outputArray;
-    }
-
-    const groupList = 
-    [
-        {groupName: generateName(),description: generateDescription(),members: generateMembers(),course: generateCourse()},
-        {groupName: generateName(),description: generateDescription(),members: generateMembers(),course: generateCourse()},
-    ];
-
-    const getGroupsFromLocal = () => {
-        let localList = JSON.parse(localStorage.getItem("groupsList"));
-        if(localList == null || localList.length == 0){
-            localStorage.setItem("groupsList", JSON.stringify(groupList));
-
-            return groupList;
-        }
-        //localStorage.setItem("groupsList", JSON.stringify([]));
-        return JSON.parse(localStorage.getItem("groupsList")) || [];
-    }
-    const [groupsList, setGroupList] = useState(getGroupsFromLocal());
-    const [filteredGroupsList, setFilteredGroupList] = useState(getGroupsFromLocal());
+    const [groupsList, setGroupList] = useState([]);
+    const [filteredGroupsList, setFilteredGroupList] = useState([]);
     const [groupNameFilter, setGroupNameFilter] = useState("");
     const [courseFilter,setCourseFilter] = useState("");
     const [descFilter, setDescFilter] = useState("");
     const [tagsFilter, setTagsFilter] = useState("");
     const [filter, setFilter] = useState(false);
     const [filterName, setFilterName] = useState("Show filters");
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/groups.json').then(response => {
+            const resGroups = response.data;
+            let localList = JSON.parse(localStorage.getItem("groupsList"));
+            if(localList === null || resGroups.length > localList.length){
+                setFilteredGroupList(resGroups);
+                setGroupList(resGroups);
+                localStorage.setItem("groupsList", JSON.stringify(resGroups));
+                return;
+            }
+            setFilteredGroupList(localList);
+            setGroupList(localList);
+        });
+      }, []);
 
     const handleGroupNameFilter = (event) =>{
         setGroupNameFilter(event.target.value);
@@ -198,9 +90,11 @@ const Groups = () => {
         if(tagsFilter.length){
             for(let i = 0; i < filteredGroupsList.length; i++){
                 for(let j = 0; j < filteredGroupsList[i].members.length; j++){
-                    if(filteredGroupsList[i].members[j][0].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
-                        outputArray.push(filteredGroupsList[i]);
-                        break;
+                    for(let k = 0; k < filteredGroupsList[i].members[j].tags.length; k++){
+                        if(filteredGroupsList[i].members[j].tags[k].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
+                            outputArray.push(filteredGroupsList[i]);
+                            break;
+                        }
                     }
                 }
             }
@@ -216,26 +110,28 @@ const Groups = () => {
         setTagsFilter("");
     }
 
-    document.title = "Lab3 - Groups";
+    document.title = "Lab4 - Groups";
 
     return (
-        <div className="container ">
-            <div className='filter'>
-                <button className='button filter-button' onClick={() => filterpanel()}>{filterName}</button>
+        <div className="main-container">
+            <div className="sub-container">
+                <button className="btn-red-full mt-8" onClick={() => filterpanel()}>{filterName}</button>
                 {filter && 
-                    <div className='filter-inputs'>
-                        <input value={courseFilter} onChange={(event) => handleCourseFilter(event)} type="text" class="title-input" placeholder="Course name"></input>
-                        <input value={groupNameFilter} onChange={(event) => handleGroupNameFilter(event)} type="text" class="title-input" placeholder="Group name"></input>
-                        <input value={descFilter} onChange={(event) => handleDescFilter(event)} type="text" class="title-input" placeholder="Description"></input>
-                        <input value={tagsFilter} onChange={(event) => handleTagsFilter(event)} type="text" class="title-input" placeholder="Tags"></input>
-                        <button className='button filter-button' onClick={() => filterContent()}>Filter</button>
-                        <button className='button filter-button' onClick={() => clearFilterContent()}>Clear</button>
+                    <div>
+                        <input value={courseFilter} onChange={(event) => handleCourseFilter(event)} type="text" className="input" placeholder="Course name"></input>
+                        <input value={groupNameFilter} onChange={(event) => handleGroupNameFilter(event)} type="text" className="input" placeholder="Group name"></input>
+                        <input value={descFilter} onChange={(event) => handleDescFilter(event)} type="text" className="input" placeholder="Description"></input>
+                        <input value={tagsFilter} onChange={(event) => handleTagsFilter(event)} type="text" className="input" placeholder="Tags"></input>
+                        <button className="btn-red-full my-1" onClick={() => filterContent()}>Filter</button>
+                        <button className="btn-red-full my-1" onClick={() => clearFilterContent()}>Clear</button>
                     </div>
                 }
             </div>
             <div>
             { filteredGroupsList.map((group, index) => 
-                <GroupCardView key={group.id} id = {index} groupName = {group.groupName} description = {group.description} members = {group.members} course = {group.course}/>)}
+                <GroupCardView key={index} id = {index} groupName = {group.groupName} description = {group.description} 
+                members = {group.members} course = {group.course} image={group.image}/>
+            )}
             </div>
         </div>
     );
