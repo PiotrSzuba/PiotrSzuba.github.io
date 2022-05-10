@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PersonCardView from '../components/personCardView';
 import axios from 'axios';
-import { userContext } from './../contexts/usersContext';
+import '../styles/index.css'
 
 const Home = () => {
 

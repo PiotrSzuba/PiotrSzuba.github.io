@@ -1,4 +1,4 @@
-import React, { FC,useState,useContext } from 'react';
+import React, { useState} from 'react';
 import './styles/index.css'
 import Navbar from './components/navbar'
 import { BrowserRouter , Route , Routes } from "react-router-dom";

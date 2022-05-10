@@ -1,6 +1,6 @@
 module.exports = {
   content: [
-    './src/**/*.{html,js,tsx,ts}',
+    './src/**/*.{html,jsx,tsx,ts}',
   ],
   theme: {
     maxWidth: {
