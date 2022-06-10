@@ -38,7 +38,7 @@ const AdvertAdder = (props) => {
         let tagsList = tags.split(';');
         let content = {fullname: user.displayName,email: user.email,description: desc,courses: coursesList,tags: tagsList,image: "data:image/png;base64, " + res};
         if(res.length){
-            addAdvert(user,content);
+            addAdvert(content);
         }
     }
     const sendError = () => {
