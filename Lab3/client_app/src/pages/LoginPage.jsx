@@ -1,25 +1,29 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { userContext } from '../contexts/usersContext';
+import {AiFillGoogleCircle,AiFillGithub} from "react-icons/ai";
+
+import { auth } from "../firebase/init";
+import { logInWithGoogle,logInWithGithub } from "../firebase/users";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const Login = () => {
 
     let navigate = useNavigate(); 
-
+    const [user, loading, error] = useAuthState(auth);
+    
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [visible, setVisible] = useState(false);
-    const [users, setUsers] = useState([]);
-    const [,setLoggedUser] = useContext(userContext);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/users.json').then(response => {
-            const persons = response.data;
-            setUsers(persons);
-        });
-      }, []);
+        if (loading)
+            return
+        if (user)
+            navigate("/");
+        if(error)
+            console.error({error});
+        return;
+
+      }, [user, loading, navigate, error]);
 
     const handleEmailInput = (event) =>{
         setEmail(event.target.value);
@@ -29,75 +33,21 @@ const Login = () => {
         setPassword(event.target.value);
     } 
 
-    const sendError = () => {
-        setVisible(true);
-        setTimeout(() => {
-            setVisible(false);
-          }, 2000);
-    }
-
-    const validateInput = () =>{
-        let index = -1;
-        if(email.length === 0){
-            setErrorMessage("Email field cannot be empty");
-            sendError();
-
-            return false;
-        }
-        for(let i = 0; i < users.length; i++){
-            if(users[i].email === email){
-                index = i;
-                break;
-            }
-        }
-        if(index === -1){
-            setErrorMessage("Email is not in database");
-            sendError();
-
-            return false;     
-        }
-        if(password.length === 0){
-            setErrorMessage("Password field cannot be empty");
-            sendError();
-
-            return false;
-        }
-        if(users[index].password === password){
-            let normalizedUser = JSON.stringify(users[index]);
-            saveUserToLocalStorage(normalizedUser);
-            setLoggedUser(normalizedUser);
-            
-            return true;
-        }
-
-        setErrorMessage("Password does not match");
-        sendError();
-        return false;   
-    }
-    
-    const saveUserToLocalStorage = (newUser) =>{
-        localStorage.setItem("loggedInUser", newUser);
-    }
-
-    const loginUser = () => {
-        if(!validateInput()){
-            return;
-        }
-
-        navigate('/');
-    }
-
     return (
         <div className="main-container">
+            {!user && 
             <div className="main-container">
+                <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> Login</div>
                 <input value={email} onChange={(event) => handleEmailInput(event)} type="text" className="input" placeholder="Email address"></input>
                 <input value={password} onChange={(event) => handlePasswordInput(event)} type="text" className="input" placeholder="Password"></input>
-                    <button className='btn-red-full' onClick={() => loginUser()}>Login</button>
-                {visible && 
-                <div className='message error'>
-                    {errorMessage}
-                </div>}
+                <button className='btn-red-full'>Login</button>
+                <div className=' flex flex-row mt-8'>
+                    <div className='my-auto'>Login with: </div>
+                    <AiFillGoogleCircle onClick={logInWithGoogle} className='text-4xl text-red-500 cursor-pointer mx-4 my-auto' />
+                    <AiFillGithub onClick={logInWithGithub} className="text-4xl text-black-500 cursor-pointer my-auto" />
+                </div>
             </div>
+            }
         </div>
     );
 }

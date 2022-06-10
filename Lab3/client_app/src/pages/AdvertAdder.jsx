@@ -3,31 +3,21 @@ import '../styles/index.css'
 import { userContext } from '../contexts/usersContext';
 import axios from 'axios';
 import {Buffer} from 'buffer';
+import {addAdvert} from "../firebase/advert";
 
-const AdvertAdder = () => {
 
-    const [fullname, setFullname] = useState("");
-    const [email,setEmail] = useState("");
+const AdvertAdder = (props) => {
+
     const [courses, setCourses] = useState("");
     const [desc, setDesc] = useState("");
     const [tags, setTags] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [visible, setVisible] = useState(false);
     const [user] = useContext(userContext);
-    const [,setUser] = useContext(userContext);
-    const [image, setImage] = useState();
 
     const getBase64 = (url) => {
         return axios.get(url, {responseType: 'arraybuffer'})
             .then(response => new Buffer(response.data, 'binary').toString('base64'))
-    }
-    
-    const handleFullnameInput = (event) =>{
-        setFullname(event.target.value);
-    }
-
-    const handleEmailInput = (event) =>{
-        setEmail(event.target.value);
     }
 
     const handleCourseInput = (event) =>{
@@ -42,21 +32,13 @@ const AdvertAdder = () => {
         setTags(event.target.value);
     }
 
-    const saveData = async () =>{
-        let tempList = JSON.parse(localStorage.getItem("studentsList"));
+    const saveData = async () => {
         let coursesList = courses.split(";");
-        if(user){
-            setUser();
-            let userParsed = JSON.parse(user);
-            tempList.push({id: tempList.length + 1,fullname: userParsed.fullname,email: userParsed.email,description: userParsed.description,courses: coursesList,tags: userParsed.tags,image: userParsed.image});
-            localStorage.setItem("studentsList", JSON.stringify(tempList));
-        }else{
-            const res = await getBase64('https://picsum.photos/200/300');
-            let tagsList = tags.split(';');
-            tempList.push({id: tempList.length + 1,fullname: fullname,email: email,description: fullname,courses: coursesList,tags: tagsList,image: "data:image/png;base64, " + res});
-            if(res.length){
-                localStorage.setItem("studentsList", JSON.stringify(tempList));
-            }
+        const res = await getBase64('https://picsum.photos/200/300');
+        let tagsList = tags.split(';');
+        let content = {fullname: user.displayName,email: user.email,description: desc,courses: coursesList,tags: tagsList,image: "data:image/png;base64, " + res};
+        if(res.length){
+            addAdvert(user,content);
         }
     }
     const sendError = () => {
@@ -82,8 +64,6 @@ const AdvertAdder = () => {
         }
         saveData();
 
-        setFullname("");
-        setEmail("");
         setCourses("");
         setDesc("");
         setTags("");
@@ -93,20 +73,20 @@ const AdvertAdder = () => {
     return (
         <div className="main-container">
             <div className="sub-container">
-                {!user && 
-                    <div>
-                        <input value={fullname} onChange={(event) => handleFullnameInput(event)} type="text" className="input" placeholder="Full name"></input>
-                        <input value={email} onChange={(event) => handleEmailInput(event)} type="text" className="input" placeholder="Email address"></input>
-                    </div>
-                }
+                {user && 
+                <>
+                <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> Add new advert</div>
                 <input value={courses} onChange={(event) => handleCourseInput(event)} type="text" className="input" placeholder="Course names separated with ; ex Course1;Course2 ;Course3"></input>
-                {!user && 
-                    <div> 
-                        <input value={desc} onChange={(event) => handleDescInput(event)} type="text" className="input" placeholder="Description"></input>
-                        <input value={tags} onChange={(event) => handleTagInput(event)} type="text" className="input" placeholder="Tags separated with ; ex C#;C++ ;java"></input>                   
-                    </div>
+                <div> 
+                    <input value={desc} onChange={(event) => handleDescInput(event)} type="text" className="input" placeholder="Description"></input>
+                    <input value={tags} onChange={(event) => handleTagInput(event)} type="text" className="input" placeholder="Tags separated with ; ex C#;C++ ;java"></input> 
+                    <button className="btn-red-full mt-1" onClick={() => getData()}>Submit</button>                  
+                </div>                  
+                </>
                 }
-                <button className="btn-red-full mt-1" onClick={() => getData()}>Submit</button>
+                { !user &&
+                    <div className=' text-4xl text-red-500'>You need to login to access this page !</div>
+                }
                 {visible && 
                 <div className='message error'>
                     {errorMessage}

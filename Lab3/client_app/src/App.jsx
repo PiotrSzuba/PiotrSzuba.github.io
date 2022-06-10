@@ -1,6 +1,7 @@
 import React, { useState} from 'react';
 import './styles/index.css'
 import Navbar from './components/navbar'
+import Footer from './components/footer';
 import { BrowserRouter , Route , Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import AdvertAdder from "./pages/AdvertAdder";
@@ -10,16 +11,19 @@ import MessagePersonPage from "./pages/MessagePage";
 import MessageGroupPage from "./pages/MessageGroupPage";
 import Bookmark from "./pages/BookmarkPage";
 import Login from './pages/LoginPage';
-import Register from './pages/RegisterPage';
 import Account from './pages/AccountPage';
 import { userContext } from './contexts/usersContext';
-
+import { auth } from "./firebase/init";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const App = () => {
   document.title = "Lab4 - Home"
-  const [loggedUser,setLoggedUser] = useState("");
+
+  const [user] = useAuthState(auth);
+  const [,setLoggedUser] = useState("");
+
   return (
-    <userContext.Provider value={[loggedUser,setLoggedUser]}>
+    <userContext.Provider value={[user,setLoggedUser]}>
       <BrowserRouter>
         <Navbar />
           <Routes>
@@ -31,9 +35,9 @@ const App = () => {
             <Route path="/MessageGroupPage/:id" element={<MessageGroupPage />} />
             <Route path="/Bookmark" element={<Bookmark />}/>
             <Route path="/Login" element={<Login />}/>
-            <Route path="/Register" element={<Register />}/>
             <Route path="/Account" element={<Account />} />
           </Routes>
+        <Footer />
       </BrowserRouter>
     </userContext.Provider>
   );

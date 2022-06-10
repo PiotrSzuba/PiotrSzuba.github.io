@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState,useContext,useEffect} from 'react';
+import { userContext } from './../contexts/usersContext';
 import { NavLink } from "react-router-dom";
 import {VscBookmark} from 'react-icons/vsc';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import {Buffer} from 'buffer';
+import { addAdvertBookmark,getUsersAdvertBookmark } from '../firebase/users';
 
 const PersonCardView = (props) => {
+    const [user] = useContext(userContext);
 
     const studentsGroupsList = props.courses.map((course,index) =>  
         <li key={index}>{course}</li>  
@@ -14,40 +14,40 @@ const PersonCardView = (props) => {
     const studentsTagsList = props.tags.map((tag,index) => 
         <div key={index} className='card-tag'>{tag}</div>
     );
-    const [href,setHref] = useState(() => {
-            if(props.courses.length === 0)
+    const [href] = useState(() => {
+            if(user && user.email === props.email)
             {
                 return "/Account";
             }
-            return "/MessagePersonPage/" + props.id;
+
+            return "/MessagePersonPage/" + props.uid;
         }
     )
 
-    const getBase64 = (url) => {
-        return axios.get(url, {responseType: 'arraybuffer'})
-            .then(response => new Buffer(response.data, 'binary').toString('base64'))
+    const [bookmark, setBookmark] = useState(false);
+        
+    useEffect(() => {
+        if(!user){
+            return;
+        }
+        getUsersAdvertBookmark(user,props.uid).then(res => {
+            setBookmark(res);
+        })        
+      }, [props.uid, user]);
+
+    const handleBookmarkChange = () => {
+        if(!user){
+            return;
+        }
+        addAdvertBookmark(user,props.uid).then(res => {
+            setBookmark(res)
+        });
     }
 
-    const [bookmark, setBookmark] = useState(props.bookmark);
-    const [image, setImage] = useState(props.image);
-
-    useEffect(async () => {
-        if(!props.image.length && props.courses.length)
-        {        
-            const res = await getBase64('https://picsum.photos/200/300');
-            setImage("data:image/png;base64, " + res);
-            let tempList = JSON.parse(localStorage.getItem("studentsList"));
-            if(res.length)
-            {
-                tempList[props.id] = {id: props.id + 1,fullname: props.fullname,email: props.email,description: props.description,courses: props.courses,tags: props.tags,image: "data:image/png;base64, " + res};
-                localStorage.setItem("studentsList", JSON.stringify(tempList));
-            }
-        }
-      }, []);
-        
     return(
         <div className='m-auto w-4/5'>
-            <div onClick = {() => setBookmark(!bookmark)} className="cursor-pointer flex flex-row-reverse">
+            { user &&
+            <div onClick = {() => handleBookmarkChange()} className="cursor-pointer flex flex-row-reverse">
                 { !bookmark &&
                 <div className="relative top-8 right-1 text-white-600">
                     <VscBookmark />
@@ -59,10 +59,11 @@ const PersonCardView = (props) => {
                 </div>
                 }
             </div>
+            }
             <div className='card-container'>
                 <NavLink className = 'navlink-stripper' to = {href}>
                     <div className="card-photo-title-container">
-                        <img className = "card-photo" alt = "Loading" src={image}/>
+                        <img className = "card-photo" alt = "Loading" src={props.image}/>
                         <div className="flex flex-col sm:mt-8">
                             <div className='card-title'>{props.fullname} {props.text}</div>
                             <div className='card-groups'>

@@ -1,8 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { userContext } from '../contexts/usersContext';
-import axios from 'axios';
 import GroupCardView from '../components/groupCardView';
 import PersonCardView from '../components/personCardView';
+
+import { getUsersAdvertBookmarks, getUsersGroupBookmarks } from '../firebase/users';
+import { getAllAdverts } from '../firebase/advert';
+import { getAllGroups } from "../firebase/group";
 
 const Bookmark = () => {
 
@@ -10,62 +13,45 @@ const Bookmark = () => {
     const [students, setStudents] = useState([]);
     const [groups, setGroups] = useState([]);
 
-    let parsedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const [user] = useContext(userContext);
  
+    const filterArrayByUidArray = (array, uidArray) => {
+        let outputArray = [];
+        for(let i = 0; i < uidArray.length; i++){
+            for(let j = 0; j < array.length; j++){
+                if(uidArray[i] === array[j].uid){
+                    outputArray.push(array[j])
+                    break;
+                }
+            }
+        }
+        
+        return outputArray;
+    }
+
     useEffect(() => {
-        axios.get('http://localhost:3000/groups.json').then(response => {
-            const resGroups = response.data;
-            let localList = JSON.parse(localStorage.getItem("groupsList"));
-            if(localList === null || resGroups.length > localList.length){
-                setGroups(filterGroups(resGroups));
-                localStorage.setItem("groupsList", JSON.stringify(filterGroups(resGroups)));
-                return;
-            }
-            setGroups(filterGroups(localList));
-        });
-        axios.get('http://localhost:3000/home.json').then(response => {
-            const resStudents = response.data;
-            let localList = JSON.parse(localStorage.getItem("studentsList"));
-            if(localList === null || resStudents.length > localList.length){
-    
-                setStudents(filterStudents(resStudents));
-                localStorage.setItem("studentsList", JSON.stringify(resStudents));
-                return;
-            }
-            setStudents(filterStudents(localList));
-        });
-    }, []);
-
-    const filterGroups = (groups) => {
-        let localList = [];
-        for(let i = 0; i < parsedUser.groupsBookmark.length; i++){
-            for(let j = 0; j < groups.length; j++){
-                if(groups[j].id == parsedUser.groupsBookmark[i]){
-                    localList.push(groups[j]);
-                    break;
-                }
-            }
+        if(!user){
+            return;
         }
-        return localList;
-    }
-
-    const filterStudents = (adverts) => {
-        let localList = [];
-        for(let i = 0; i < parsedUser.advertsBookmark.length; i++){
-            for(let j = 0; j < adverts.length; j++){
-                if(adverts[j].id == parsedUser.advertsBookmark[i]){
-                    localList.push(adverts[j]);
-                    break;
-                }
-            }
-        }
-        return localList;
-    }
-
+        getUsersAdvertBookmarks(user).then(res => {
+            const uidArray = res;
+            getAllAdverts().then(res => {
+                setStudents(filterArrayByUidArray(res,uidArray));
+            });
+        });
+        getUsersGroupBookmarks(user).then(res => {
+            const uidArray = res;
+            getAllGroups().then(res => {
+                setGroups(filterArrayByUidArray(res,uidArray));
+            });
+        });
+    }, [user]);
 
     return (
         <div className="main-container">
+            {user && <>
             <div className="sub-container">
+                <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> My Bookmarks</div>
                 <div className='flex flex-row m-auto'>
                     {mode && 
                     <div className='w-full'>
@@ -82,15 +68,21 @@ const Bookmark = () => {
                 </div>
             </div>
             { !mode && students.map((student, index) => 
-                <PersonCardView key = {index} id = {index} fullname = {student.fullname} 
-                description = {student.description} courses = {student.courses} tags = {student.tags} 
-                text = {"is looking for these groups"} bookmark = {true} image={student.image}/>
+                <PersonCardView key = {index} uid = {student.uid} fullname = {student.content.fullname} 
+                email={student.content.email} description = {student.content.description} courses = {student.content.courses} 
+                tags = {student.content.tags} text = {"is looking for these groups"} image={student.content.image} />
             )}
             { mode && groups.map((group, index) => 
-                <GroupCardView key={index} id = {index} groupName = {group.groupName} 
-                description = {group.description} members = {group.members} 
-                course = {group.course} bookmark = {true} image={group.image}/>
+                <GroupCardView key={index} uid = {group.uid} groupName = {group.content.groupName} description = {group.content.description} 
+                members = {group.content.members} course = {group.content.course} image={group.content.image} email = {group.content.email}/>
             )}
+            </>
+            }
+            { !user && 
+            <div className='main-container'>
+                U need to log in !
+            </div>
+            }
         </div>
     );
 }

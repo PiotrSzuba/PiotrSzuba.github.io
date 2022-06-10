@@ -1,5 +1,7 @@
-import React, { useState , useEffect } from 'react';
+import React from 'react';
 import axios from 'axios';
+import {Buffer} from 'buffer';
+import {addGroup} from "../firebase/group";
 import { userContext } from './../contexts/usersContext';
 
 export default class GroupAdder extends React.Component {
@@ -13,22 +15,25 @@ export default class GroupAdder extends React.Component {
         this.handleCoursesChange = this.handleCoursesChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.saveData = this.saveData.bind(this);
-        this.getUsers = this.getUsers.bind(this);
+        this.getEmails = this.getEmails.bind(this);
         this.sendError = this.sendError.bind(this);
         this.validateInput = this.validateInput.bind(this);
+        this.getBase64 = this.getBase64.bind(this);
     }
 
     static contextType = userContext;
 
     componentDidMount() {
-        axios.get('http://localhost:3000/users.json').then(response => {
-            const persons = response.data;
-            this.setState({users: persons});
-        });
+
     }
     
     componentDidUpdate() {
 
+    }
+
+    getBase64(url){
+        return axios.get(url, {responseType: 'arraybuffer'})
+            .then(response => new Buffer(response.data, 'binary').toString('base64'))
     }
 
     handleNameChange(event) {
@@ -48,28 +53,16 @@ export default class GroupAdder extends React.Component {
         this.setState({course: event.target.value});
     }
 
-    getUsers(){
-        let finalMembers = [];
-        const temp = JSON.parse(this.context[0]);
-        finalMembers.push({fullname: temp.fullname, email: temp.email, tags: temp.tags});
-
-        for(let  i = 0; i < this.state.membersList.length; i++){
-            for(let j = 0; j < this.state.users.length; j++){
-                if(temp.email !== this.state.users[j].email && this.state.membersList[i].replace( /\s/g, '') === this.state.users[j].email){
-                    finalMembers.push({fullname: this.state.users[j].fullname, email: this.state.users[j].email, tags: this.state.users[j].tags});
-                    break;
-                }
-            }
-        }
-
-        return finalMembers;
+    getEmails(){
+        return this.state.membersString.split(";");
     }
 
-    saveData(){
-        let tempList = JSON.parse(localStorage.getItem("groupsList"));
-        let newId = tempList.length + 1;
-        tempList.push({id: newId, groupName: this.state.groupName, description: this.state.desc, members: this.getUsers(), course: this.state.course});
-        localStorage.setItem("groupsList", JSON.stringify(tempList));
+    async saveData(){
+        const res = await this.getBase64('https://picsum.photos/200/300');
+        if(res.length){
+            addGroup({groupName: this.state.groupName, description: this.state.desc, members: this.getEmails(), 
+                course: this.state.course, email:this.context[0].email, image: "data:image/png;base64, " + res});
+        }
     }
 
     sendError(){
@@ -90,19 +83,10 @@ export default class GroupAdder extends React.Component {
             this.sendError();
             return false;
         }
-        for(let  i = 0; i < this.state.membersList.length; i++){
-            let found = false;
-            for(let j = 0; j < this.state.users.length; j++){
-                if(this.state.membersList[i].replace( /\s/g, '') === this.state.users[j].email){
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-                this.setState({errorMessage: "Email: \"" + this.state.membersList[i] + "\" is not in database"});
-                this.sendError();
-                return false;
-            }
+        if(this.state.membersList.length === 0){
+            this.setState({errorMessage: "Emails field cannot be empty"});
+            this.sendError();
+            return false;
         }
         if(this.state.course.length === 0){
             this.setState({errorMessage: "Course field cannot be empty"});
@@ -115,8 +99,8 @@ export default class GroupAdder extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const temp = this.context[0];
-        if(!temp){
+        const user = this.context[0];
+        if(!user){
             this.setState({errorMessage: "You need to log in !"});
             this.sendError();
             return;
@@ -124,10 +108,11 @@ export default class GroupAdder extends React.Component {
         if(!this.validateInput()){
             return;
         }
-        this.saveData();
-        this.setState({errorMessage: "Sukcess !"});
-        this.sendError();
-        this.setState({groupName: "",desc: "",membersString: "",membersList: "",members: [],course: ""});
+        this.saveData().then(res => {
+            this.setState({errorMessage: "Success !"});
+            this.sendError();
+            this.setState({groupName: "",desc: "",membersString: "",membersList: "",members: [],course: ""});
+        });
     }
 
 
@@ -136,6 +121,8 @@ export default class GroupAdder extends React.Component {
         return (
             <div className="main-container">
                 <div className="sub-container">
+                    {this.context[0] && <>
+                    <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> Add new group</div>
                     <form onSubmit={this.handleSubmit}>
                         <input placeholder="Group name" type="text" className="input" value={this.state.groupName} onChange={this.handleNameChange} />
                         <input placeholder="Description" type="text" className="input" value={this.state.desc} onChange={this.handleDescChange} />
@@ -143,6 +130,7 @@ export default class GroupAdder extends React.Component {
                         <input placeholder="Course" type="text" className="input" value={this.state.course} onChange={this.handleCoursesChange} />
                         <input className="btn-red-full mt-1" type="submit" value="Submit" />
                     </form>
+                    </>}
                     {this.state.visible && 
                         <div className='message error'>
                             {this.state.errorMessage}

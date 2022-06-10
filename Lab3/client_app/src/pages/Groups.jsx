@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GroupCardView from '../components/groupCardView';
-import axios from 'axios';
+import { getAllGroups } from '../firebase/group';
 
 const Groups = () => {
     const [groupsList, setGroupList] = useState([]);
@@ -8,22 +8,13 @@ const Groups = () => {
     const [groupNameFilter, setGroupNameFilter] = useState("");
     const [courseFilter,setCourseFilter] = useState("");
     const [descFilter, setDescFilter] = useState("");
-    const [tagsFilter, setTagsFilter] = useState("");
     const [filter, setFilter] = useState(false);
     const [filterName, setFilterName] = useState("Show filters");
 
     useEffect(() => {
-        axios.get('http://localhost:3000/groups.json').then(response => {
-            const resGroups = response.data;
-            let localList = JSON.parse(localStorage.getItem("groupsList"));
-            if(localList === null || resGroups.length > localList.length){
-                setFilteredGroupList(resGroups);
-                setGroupList(resGroups);
-                localStorage.setItem("groupsList", JSON.stringify(resGroups));
-                return;
-            }
-            setFilteredGroupList(localList);
-            setGroupList(localList);
+        getAllGroups().then(res => {
+            setFilteredGroupList(res);
+            setGroupList(res);
         });
       }, []);
 
@@ -37,10 +28,6 @@ const Groups = () => {
 
     const handleCourseFilter = (event) =>{
         setCourseFilter(event.target.value);
-    }
-
-    const handleTagsFilter = (event) =>{
-        setTagsFilter(event.target.value);
     }
 
     const filterpanel = () => {
@@ -59,7 +46,7 @@ const Groups = () => {
 
         if(groupNameFilter.length){
             for(let i = 0; i < filteredGroupsList.length; i++){
-                if(filteredGroupsList[i].groupName.toLocaleLowerCase().includes(groupNameFilter.toLocaleLowerCase())){
+                if(filteredGroupsList[i].content.groupName.toLocaleLowerCase().includes(groupNameFilter.toLocaleLowerCase())){
                     outputArray.push(filteredGroupsList[i]);
                 }
             }
@@ -69,7 +56,7 @@ const Groups = () => {
         outputArray = [];
         if(descFilter.length){
             for(let i = 0; i < filteredGroupsList.length; i++){
-                if(filteredGroupsList[i].description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
+                if(filteredGroupsList[i].content.description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
                     outputArray.push(filteredGroupsList[i]);
                 }
             }
@@ -79,23 +66,8 @@ const Groups = () => {
         outputArray = [];
         if(courseFilter.length){
             for(let i = 0; i < filteredGroupsList.length; i++){
-                if(filteredGroupsList[i].course.toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
+                if(filteredGroupsList[i].content.course.toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
                     outputArray.push(filteredGroupsList[i]);
-                }
-            }
-            setFilteredGroupList(outputArray);
-        }
-
-        outputArray = [];
-        if(tagsFilter.length){
-            for(let i = 0; i < filteredGroupsList.length; i++){
-                for(let j = 0; j < filteredGroupsList[i].members.length; j++){
-                    for(let k = 0; k < filteredGroupsList[i].members[j].tags.length; k++){
-                        if(filteredGroupsList[i].members[j].tags[k].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
-                            outputArray.push(filteredGroupsList[i]);
-                            break;
-                        }
-                    }
                 }
             }
             setFilteredGroupList(outputArray);
@@ -107,21 +79,20 @@ const Groups = () => {
         setGroupNameFilter("");
         setCourseFilter("");
         setDescFilter("");
-        setTagsFilter("");
     }
 
     document.title = "Lab4 - Groups";
-
+    
     return (
         <div className="main-container">
             <div className="sub-container">
-                <button className="btn-red-full mt-8" onClick={() => filterpanel()}>{filterName}</button>
+                <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> Groups</div>
+                <button className="btn-red-full mt-4" onClick={() => filterpanel()}>{filterName}</button>
                 {filter && 
                     <div>
                         <input value={courseFilter} onChange={(event) => handleCourseFilter(event)} type="text" className="input" placeholder="Course name"></input>
                         <input value={groupNameFilter} onChange={(event) => handleGroupNameFilter(event)} type="text" className="input" placeholder="Group name"></input>
                         <input value={descFilter} onChange={(event) => handleDescFilter(event)} type="text" className="input" placeholder="Description"></input>
-                        <input value={tagsFilter} onChange={(event) => handleTagsFilter(event)} type="text" className="input" placeholder="Tags"></input>
                         <button className="btn-red-full my-1" onClick={() => filterContent()}>Filter</button>
                         <button className="btn-red-full my-1" onClick={() => clearFilterContent()}>Clear</button>
                     </div>
@@ -129,8 +100,8 @@ const Groups = () => {
             </div>
             <div>
             { filteredGroupsList.map((group, index) => 
-                <GroupCardView key={index} id = {index} groupName = {group.groupName} description = {group.description} 
-                members = {group.members} course = {group.course} image={group.image}/>
+                <GroupCardView key={index} uid = {group.uid} groupName = {group.content.groupName} description = {group.content.description} 
+                members = {group.content.members} course = {group.content.course} image={group.content.image} email = {group.content.email}/>
             )}
             </div>
         </div>

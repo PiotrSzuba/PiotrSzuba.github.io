@@ -7,7 +7,7 @@
 
 @layer components {
     *{
-        @apply box-border m-0
+        @apply box-border m-0 select-none
     }
     
     #root{
@@ -15,7 +15,7 @@
     }
     
     body{
-        @apply w-full text-black-900 mb-10% font-poppins
+        @apply w-full text-black-900 font-poppins
     }
 
     .navLogo{
@@ -23,15 +23,19 @@
     }
 
     .navbar-container{
-        @apply w-full h-12 text-white-100 bg-black-500 flex justify-center items-center sticky top-0 sm:text-xs md:text-sm lg:text-base z-10
+        @apply w-full h-12 text-white-100 bg-black-900 flex justify-center items-center sticky top-0 sm:text-xs md:text-sm lg:text-base z-10
     }
 
     .navbar-content{
-        @apply lg:w-2/3 sm:w-4/5 h-full flex flex-row items-center
+        @apply w-11/12 xs:w-10/12 h-full flex flex-row items-center
     }
 
     .navLink{
-        @apply flex justify-center items-center lg:m-2 md:m-1 sm:m-0.5
+        @apply flex justify-center items-center lg:m-2 md:m-1 sm:m-0.5 cursor-pointer
+    }
+
+    .navlink-no-center{
+        @apply lg:p-2 md:p-1 sm:p-0.5 cursor-pointer text-white-600 hover:text-white-100
     }
 
     .force-left{
@@ -43,7 +47,7 @@
     }
 
     .main-container{
-        @apply m-auto lg:w-8/12 md:w-10/12 sm:w-11/12 pt-1
+        @apply m-auto lg:w-8/12 md:w-10/12 sm:w-11/12 pt-1 mb-10% min-h-screen
     }
 
     .sub-container{
@@ -51,23 +55,23 @@
     }
 
     .btn-red-full{
-        @apply my-2 py-2 w-full bg-white-100 border-2 border-red-500 hover:text-white-100 hover:bg-red-500 focus:outline-none active:ring active:ring-red-300 rounded-lg text-red-500
+        @apply py-2 text-center text-white-100 bg-black-900 ring-2 ring-black-500 rounded-xl cursor-pointer active:ring-black-300 active:ring-2 w-full
     }
 
     .btn-red-half{
-        @apply my-2 py-2 w-1/2 border-2 border-red-500 text-red-500
+        @apply my-2 py-2 w-1/2 border-2 border-black-900 text-black-900 
     }
 
     .btn-red-half-active{
-        @apply my-2 py-2 w-1/2 border-2 border-red-500 bg-red-500 text-white-100
+        @apply my-2 py-2 w-1/2 border-2 border-black-900  bg-black-900 text-white-100
     }
 
     .textArea{
-        @apply mt-1 h-40 w-full border-2 border-red-300 focus:border-red-500
+        @apply mt-1 h-40 w-full border-2 border-white-800 focus:border-black-900
     }
 
     .input{
-        @apply my-1 p-2 w-full border-2 border-red-300 focus:border-red-500 rounded-lg transition duration-500
+        @apply my-1 p-2 w-full border-2 border-white-800 focus:border-black-900 rounded-lg transition duration-500
     }
 
     .card-container{

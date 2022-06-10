@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PersonCardView from '../components/personCardView';
-import axios from 'axios';
 import '../styles/index.css'
+import { getAllAdverts } from '../firebase/advert';
 
 const Home = () => {
 
@@ -14,17 +14,9 @@ const Home = () => {
     const [tagsFilter, setTagsFilter] = useState("");
 
     useEffect(() => {
-        axios.get('http://localhost:3000/home.json').then(response => {
-            const resGroups = response.data;
-            let localList = JSON.parse(localStorage.getItem("studentsList"));
-            if(localList === null || resGroups.length > localList.length){
-                setFilteredStudents(resGroups);
-                setStudents(resGroups);
-                localStorage.setItem("studentsList", JSON.stringify(resGroups));
-                return;
-            }
-            setFilteredStudents(localList);
-            setStudents(localList);
+        getAllAdverts().then(res => {
+            setFilteredStudents(res);
+            setStudents(res);
         });
       }, []);
 
@@ -56,7 +48,7 @@ const Home = () => {
 
         if(descFilter.length){
             for(let i = 0; i < filteredStudents.length; i++){
-                if(filteredStudents[i].description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
+                if(filteredStudents[i].content.description.toLocaleLowerCase().includes(descFilter.toLocaleLowerCase())){
                     outputArray.push(filteredStudents[i]);
                 }
             }
@@ -65,8 +57,8 @@ const Home = () => {
         outputArray = [];
         if(courseFilter.length){
             for(let i = 0; i < filteredStudents.length; i++){
-                for(let j = 0; j < filteredStudents[i].courses.length; j++){
-                    if(filteredStudents[i].courses[j].toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
+                for(let j = 0; j < filteredStudents[i].content.courses.length; j++){
+                    if(filteredStudents[i].content.courses[j].toLocaleLowerCase().includes(courseFilter.toLocaleLowerCase())){
                         outputArray.push(filteredStudents[i]);
                         break;
                     }
@@ -78,8 +70,8 @@ const Home = () => {
         outputArray = [];
         if(tagsFilter.length){
             for(let i = 0; i < filteredStudents.length; i++){
-                for(let j = 0; j < filteredStudents[i].tags.length; j++){
-                    if(filteredStudents[i].tags[j].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
+                for(let j = 0; j < filteredStudents[i].content.tags.length; j++){
+                    if(filteredStudents[i].content.tags[j].toLocaleLowerCase().includes(tagsFilter.toLocaleLowerCase())){
                         outputArray.push(filteredStudents[i]);
                         break;
                     }
@@ -101,7 +93,8 @@ const Home = () => {
     return (
         <div className="main-container">
             <div className="sub-container">
-                <button className="btn-red-full mt-8" onClick={() => filterpanel()}>{filterName}</button>
+            <div className='text-3xl my-4 font-semibold text-black-300 w-full text-center'> Adverts</div>
+                <button className="btn-red-full mt-4" onClick={() => filterpanel()}>{filterName}</button>
                 {filter && 
                     <div>
                         <input value={courseFilter} onChange={(event) => handleCourseFilter(event)} type="text" className="input" placeholder="Course name"></input>
@@ -115,9 +108,9 @@ const Home = () => {
             <div>
 
               { filteredStudents.map((student, index) => 
-                <PersonCardView key = {index} id = {index} fullname = {student.fullname} 
-                    email={student.email} description = {student.description} courses = {student.courses} 
-                    tags = {student.tags} text = {"is looking for these groups"} image={student.image}/>
+                <PersonCardView key = {index} uid = {student.uid} fullname = {student.content.fullname} 
+                    email={student.content.email} description = {student.content.description} courses = {student.content.courses} 
+                    tags = {student.content.tags} text = {"is looking for these groups"} image={student.content.image} />
               )}
             </div>
         </div>

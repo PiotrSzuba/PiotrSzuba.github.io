@@ -1,69 +1,156 @@
 import React, { useState,useContext,useEffect} from 'react';
-import { useNavigate } from "react-router-dom";
 import { userContext } from './../contexts/usersContext';
 import PersonCardView from '../components/personCardView';
-import axios from 'axios';
-import {Buffer} from 'buffer';
+import GroupCardView from '../components/groupCardView';
+import {getUsersAdverts,delAdvert} from "../firebase/advert";
+import {getUsersGroups, delGroup} from "../firebase/group";
+import AdvertEdit from '../components/AdvertEdit';
+import GroupEdit from '../components/GroupEdit';
 
 const Account = () => {
-    let navigate = useNavigate(); 
-    const [loggedUser] = useContext(userContext);
-    const [,setLoggedUser] = useContext(userContext);
-    let tempUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const [user] = useContext(userContext);
+    const [mode,setMode] = useState(false);
+    const [editedAdverts, setEditedAdverts] = useState([]);
+    const [editedGroups, setEditedGroups] = useState([]);
 
-    const [dummyState,setDummyState] = useState();
-    const [image, setImage] = useState(tempUser.image);
-    const [loaded, setLoaded] = useState(() => {
-        if(tempUser.image.length)
-        {
-            return true;
-        }
-        return false;
-    });
+    const [students, setStudents] = useState([]);
+    const [groups, setGroups] = useState([]);
 
-    const getBase64 = (url) => {
-        setDummyState("");
-        return axios.get(url, {responseType: 'arraybuffer'})
-            .then(response => new Buffer(response.data, 'binary').toString('base64'))
-    }
-
-    useEffect(async () => {
-        if(!tempUser.image.length && tempUser)
-        {         
-            const res = await getBase64('https://picsum.photos/200/300');
-            if(res.length)
-            {
-                tempUser = {id: tempUser.id ,fullname: tempUser.fullname,
-                            email: tempUser.email,description: tempUser.description,
-                            courses: [],tags: tempUser.tags,advertsBookmark: tempUser.
-                            advertsBookmark, groupsBookmark: tempUser.groupsBookmark,
-                            image: "data:image/png;base64, " + res};
-                localStorage.setItem("loggedInUser", JSON.stringify(tempUser));
-                setLoggedUser(JSON.stringify(tempUser));
-                setImage("data:image/png;base64, " + res);
-                setLoaded(true);
+    useEffect(() => {
+        getUsersAdverts(user).then(res => {
+            setStudents(res);
+            let edited_adverts = [];
+            for(let i = 0; i < res.length; i++){
+                edited_adverts.push(false);
             }
-        }
-      }, []);
+            setEditedAdverts(edited_adverts);
+        });
+        getUsersGroups(user).then(res => {
+            setGroups(res);
+            let edited_groups = [];
+            for(let i = 0; i < res.length; i++){
+                edited_groups.push(false);
+            }
+            setEditedGroups(edited_groups);
+        });
+      }, [user]);
 
-      const clear = () => {
-        setLoggedUser(false);
-        localStorage.clear()
-        navigate('/');
+    const handleDeleteAdvert = (uid) => {
+        delAdvert(uid).then(res => {
+            getUsersAdverts(user).then(res => {
+                setStudents(res);
+            });
+        });
     }
 
+    const handleDeleteGroup = (uid) => {
+        delGroup(uid).then(res => {
+            getUsersGroups(user).then(res => {
+                setGroups(res);
+            });
+        });
+    }
+
+    const handleEditAdvertButton = (index) => {
+        const newEditedAdverts = [...editedAdverts];
+        newEditedAdverts[index] = !editedAdverts[index];
+        setEditedAdverts(newEditedAdverts);
+    }
+
+    const handleEditAdvert = () => {
+        getUsersAdverts(user).then(res => {
+            let newAdverts = [...students];
+            newAdverts = res;
+            setStudents(newAdverts);
+            let edited_adverts = [];
+            for(let i = 0; i < res.length; i++){
+                edited_adverts.push(false);
+            }
+            setEditedAdverts(edited_adverts);
+        });
+    }
+
+    const handleEditGroupButton = (index) => {
+        const newEditedGroups = [...editedGroups];
+        newEditedGroups[index] = !editedGroups[index];
+        setEditedGroups(newEditedGroups);
+    }
+
+    const handleEditGroup = () => {
+        getUsersGroups(user).then(res => {
+            let newGroups = [...groups];
+            newGroups = res;
+            setGroups(newGroups);
+            let edited_groups = [];
+            for(let i = 0; i < res.length; i++){
+                edited_groups.push(false);
+            }
+            setEditedGroups(edited_groups);
+        });
+    }
 
     return (
         <>
-        {tempUser && loaded &&
+        {user &&
         <div className='main-container'>
-            <PersonCardView key = {tempUser.id} id = {tempUser.id} fullname = {tempUser.fullname} email={tempUser.email} description = {tempUser.description} courses = {[]} tags = {tempUser.tags} image={image}/>
             <div className='sub-container'>
-                <button className = "btn-red-full mt-8" onClick = {() => clear()}>Reset localStorage</button>
+                <div className=' flex flex-row mt-4'>
+                    <img className = "card-photo" alt = "Loading" src={user.photoURL}/>
+                    <div className='flex flex-col w-full'>
+                        <div className='text-2xl'>{user.displayName}</div>
+                        <div className='text-xl'>{user.email}</div>
+                    </div>
+                </div>
+                <div className='flex flex-row m-auto mt-8'>
+                    {mode && 
+                    <div className='w-full'>
+                        <button onClick = {() => setMode(false)} className='btn-red-half border-r-0 rounded-l-lg'>My adverts</button>
+                        <button onClick = {() => setMode(true)} className='btn-red-half-active rounded-r-lg'>My groups</button>
+                    </div>
+                    }
+                    {!mode && 
+                    <div className='w-full'>
+                        <button onClick = {() => setMode(false)} className='btn-red-half-active border-r-0 rounded-l-lg'>My adverts</button>
+                        <button onClick = {() => setMode(true)} className='btn-red-half rounded-r-lg'>My groups</button>
+                    </div>
+                    }
+                </div>
             </div>
+            { !mode && students.map((student, index) => 
+            <>
+                <PersonCardView key = {index} uid = {student.uid} fullname = {student.content.fullname} 
+                    email={student.content.email} description = {student.content.description} courses = {student.content.courses} 
+                    tags = {student.content.tags} text = {"is looking for these groups"} image={student.content.image} />
+                <div className='m-auto w-4/5 flex flex-row'>
+                    <div className='w-1/2 py-2 text-center text-white-100 bg-black-900 rounded-l-xl active:ring-2 active:ring-black-200' onClick={() => handleEditAdvertButton(index)}>Edit</div>
+                    <div className='w-1/2 py-2 text-center text-red-500 bg-black-900 rounded-r-xl active:ring-2 active:ring-black-200' onClick={() => handleDeleteAdvert(student.uid)}>Delete</div>
+                </div>
+                {editedAdverts[index] &&
+                    <div className="m-auto w-4/5">
+                        <AdvertEdit advert={student} callback={handleEditAdvert}/>
+                    </div>
+                }
+            </>    
+            )}
+            { mode && groups.map((group, index) =>
+            <>
+                <GroupCardView key={index} uid = {group.uid} groupName = {group.content.groupName} 
+                description = {group.content.description} members = {group.content.members} 
+                course = {group.content.course} image={group.content.image} email = {group.content.email}/>
+                <div className='m-auto w-4/5 flex flex-row'>
+                    <div className='w-1/2 py-2 text-center text-white-100 bg-black-900 rounded-l-xl active:ring-2 active:ring-black-200' onClick={() => handleEditGroupButton(index)}>Edit</div>
+                    <div className='w-1/2 py-2 text-center text-red-500 bg-black-900 rounded-r-xl active:ring-2 active:ring-black-200' onClick={() => handleDeleteGroup(group.uid)}>Delete</div>
+                </div>
+                {editedGroups[index] &&
+                    <div className="m-auto w-4/5">
+                        <GroupEdit group={group} callback={handleEditGroup}/>
+                    </div>
+                }
+            </> 
+            )}
         </div>
         }
-        { !tempUser && 
+        { !user && 
             <div className='main-container'>
                 U need to log in !
             </div>

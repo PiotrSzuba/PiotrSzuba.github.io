@@ -1,28 +1,28 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import GroupCardView from '../components/groupCardView';
-
+import {getGroupByUID} from "../firebase/group";
 const MessageGroupPage = () =>{
-
-    const GetId = () =>{
-        let id = window.location.pathname.replace("/MessageGroupPage/","");
     
-        return id = window.location.pathname.replace("/MessageGroupPage/","");
+    const GetUID = () =>{
+        return window.location.pathname.replace("/MessageGroupPage/","");
     }
 
-    const getGroupsFromLocal = () => {
-        let localList = JSON.parse(localStorage.getItem("groupsList"));
-
-        return localList[GetId()];
-    }
-
-    const [group, setGroup] = useState(getGroupsFromLocal());
+    const [group, setGroup] = useState();
     const [visible, setVisible] = useState(false);
     const [sendMessageStatus,setSendMessageStatus] = useState("");
     const textInput = useRef("");
     const wrapper = useCallback((node) => {
         textInput.current = node;
     }, [])
-      
+
+    useEffect(() => {
+        getGroupByUID(GetUID()).then(res => {
+            if(res.length === 1){
+                setGroup(res[0]);
+            }
+        });
+      },[]);
+
     const sendMessage = () => {
         if(textInput.current.value.length){
             setSendMessageStatus("Message " + textInput.current.value +  " was sent");
@@ -35,12 +35,14 @@ const MessageGroupPage = () =>{
         setTimeout(() => {
             setVisible(false);
           }, 1000);
-    }
+    }       
 
     return (
         <div className="main-container ">
-            <GroupCardView id = {GetId()} groupName = {group.groupName} description = {group.description}
-             members = {group.members} course = {group.course} image={group.image}/>
+            { group &&
+            <>
+            <GroupCardView uid = {GetUID()} groupName = {group.content.groupName} description = {group.content.description}
+                members = {group.content.members} course = {group.content.course} image={group.content.image} email={group.content.email}/>            
             <div className="sub-container">
                 <textarea autoFocus className = "textArea" ref={wrapper} placeholder = "Write message"/>
                 <button className="btn-red-full" onClick={() => sendMessage()}>Send</button>
@@ -49,6 +51,8 @@ const MessageGroupPage = () =>{
                         {sendMessageStatus}
                     </div>}
             </div>
+            </>
+            }
         </div>
     );
 }
