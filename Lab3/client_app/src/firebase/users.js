@@ -21,7 +21,6 @@ export const logInWithGoogle = async () => {
             await setDoc(q, {
                 name: user.displayName,
                 authProvider: "google",
-                doc: "googleUsers",
                 email: user.email,
                 image: user.photoURL,
                 bookmarkAdverts: [],
@@ -40,13 +39,12 @@ export const logInWithGithub = async () => {
         const response = await signInWithPopup(auth, githubProvider);
 
         const user = response.user;
-        const q = doc(firestore, "gitUsers", user.uid);
+        const q = doc(firestore, "githubUsers", user.uid);
         const docs = await getDoc(q);
         if ( ! docs.exists()) {
             await setDoc(q, {
                 name: user.displayName,
                 authProvider: "github",
-                doc: "gitUsers",
                 email: user.email,
                 image: user.photoURL,
                 bookmarkAdverts: [],
